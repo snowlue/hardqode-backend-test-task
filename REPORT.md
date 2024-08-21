@@ -67,7 +67,7 @@ python manage.py makemigrations users
     )
     ```
 
-4. У нас имеется модель `Balance`, которую необходимо дополнить соответствующими полями — внешним ключом `user` на пользователя с отношением один-к-одному и полем `amount`, отвечающим за количество бонусов на балансе c параметром `default`. Также добавим методы `clean()` и `save()` для проверки модели на отрицательное значение баланса при создании и обновлении модели:
+4. У нас имеется модель `Balance`, которую необходимо дополнить соответствующими полями — внешним ключом `user` на пользователя с отношением один-к-одному и полем `amount`, отвечающим за количество бонусов на балансе, c параметром `default`. Также добавим методы `clean()` и `save()` для проверки модели на отрицательное значение баланса при создании и обновлении модели:
     ```python
     class Balance(models.Model):
         """Модель баланса пользователя."""
@@ -130,7 +130,7 @@ python manage.py makemigrations users
             return create_user_balance(self)
         super().save(*args, **kwargs)
     ```
-    Теперь создадим функцию `create_user_balance()`, которая будет создавать баланс для этого пользователя:
+    Теперь создадим функцию `create_user_balance()`, которая будет создавать баланс для нового пользователя:
     ```python
     def create_user_balance(user: CustomUser):
         return Balance.objects.create(user=user)
@@ -166,7 +166,7 @@ python manage.py makemigrations users
     ```python
     group = models.ManyToManyField(Group)
     ```
-    Оформим до сих пор пустую модель `Group` в `courses/models.py` полями `course` (принадлежность многие-к-одному для связи групп с курсом) и `title` (название группы с её номером):
+    Оформим до сих пор пустую модель `Group` в `courses/models.py` полями `course` (отношение многие-к-одному для связи групп с курсом) и `title` (название группы с её номером):
     ```python
     course = models.ForeignKey(
         Course,
@@ -213,7 +213,7 @@ python manage.py makemigrations users
             model = Subscription
             fields = ('course', 'user', 'start_date')
     ```
-2. В `api/v1/permissions.py` отмечены три TODO — я не разобрался, что требуется сделать с ними. Из названий предназначения очевидно, но `make_payments` не вписывается в контекст permissions, а требуемая реализация `IsStudentOrIsAdmin` не была обозначена в задании.
+2. В `api/v1/permissions.py` отмечены три TODO — я не разобрался, что требуется сделать с ними. Из названий объектов их предназначение очевидно, но `make_payments` не вписывается в контекст permissions, а требования к реализации `IsStudentOrIsAdmin` не были обозначены в задании.
 3. В `api/v1/serializers/course_serializer.py` необходимо реализовать сериализатор групп:
     ```python
     class GroupSerializer(serializers.ModelSerializer):
@@ -230,7 +230,7 @@ python manage.py makemigrations users
             """Возвращает количество пользователей в группе."""
             return obj.customuser_set.count()
     ```
-4. В `api/v1/serializers/course_serializer.py` также необходимо реализовать API для отображения статистики по продуктам — и, судя по всему, с применением `Avg` и `Count`, которые были импортированы, но не были использованы:
+4. В `api/v1/serializers/course_serializer.py` также необходимо реализовать API для отображения статистики по продуктам — и, судя по всему, это нужно сделать с применением `Avg` и `Count`, которые были импортированы, но не были использованы (спасибо за подсказку!):
     ```python
     def get_groups_filled_percent(self, obj):
         """Процент заполнения групп, если в группе максимум 30 чел.."""
